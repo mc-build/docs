@@ -59,10 +59,10 @@ You can inject JS directly into commands during run time using the in-line JS bl
 For instance if I wrote a function like this:
 ```
 function example {
-	say <%config.dev%>
+	say <%config.special%>
 }
 ```
-and I set the value of `dev` in the config to `"Bob's your uncle"`, when the project compiles the function would look like this:
+and I set the value of `special` in the config to `"Bob's your uncle"`, when the project compiles the function would look like this:
 ```
 say Bob's your uncle
 ```
@@ -163,7 +163,7 @@ it would compile to
 ```
 execute run function ...
 ```
-which is not an acceptable practice according to most command devs, however Minecraft will just omit the `execute run` command because it's smart. So it's not something we recommend doing, but it won't effect anything internally except for possibly file size and perhaps your reputation among the MCC community.
+which is not an acceptable practice according to most command devs, however Minecraft will just omit the `execute run` command and just run the function call because it's smart. So it's not something we recommend doing, but it won't effect anything internally except for possibly file size and perhaps your reputation among the MCC community.
 
 ---
 #### dir blocks
@@ -195,15 +195,15 @@ function example {
 ```
 This is basically a shorthand way of writing this:
 ```
-scoreboard players set #MCBIF <%this.internalScoreboard%> 0
+scoreboard players set #MCBIF <%config.internalScoreboard%> 0
 execute if score #count value matches 0 run{
-	scoreboard players set #MCBIF <%this.internalScoreboard%> 1
+	scoreboard players set #MCBIF <%config.internalScoreboard%> 1
 }
-execute if score #MCBIF <%this.internalScoreboard%> matches 0 if score #count value matches 1 run{
+execute if score #MCBIF <%config.internalScoreboard%> matches 0 if score #count value matches 1 run{
 	say 1
-	scoreboard players set #MCBIF <%this.internalScoreboard%> 1
+	scoreboard players set #MCBIF <%config.internalScoreboard%> 1
 }
-execute if score #MCBIF <%this.internalScoreboard%> matches 0 run{
+execute if score #MCBIF <%config.internalScoreboard%> matches 0 run{
 	say not 0 or 1
 }
 ```
@@ -240,13 +240,16 @@ macro example {
 Before you call a macro you first have to import it into the file you want to use it in.
 This can be done using the import statement:
 `import ./filename.mcm`
-The file extension (`.mcm`) is optional. So `import ./filename` is also valid syntax
 
 #### Calling a macro
 Calling a macro is a little bit different than calling a function.
 Macros can have arguments fed to them like this:
 ```
 macro example arg1 arg2 arg3
+```
+you can also call them using just their name IF you're in a `.mc` file
+```
+example arg1 arg2 arg3
 ```
 When defining a macro you can use these inputs either via replacement using `$$N` where N is the argument index (so $$0 would be the first argument), or by using the multi-line JS block `args` array:
 ```
@@ -259,9 +262,9 @@ macro example {
 ```
 macro example {
 	<%%
-	emit(`say`+args[0]);
-	emit(`say`+args[1]);
-	emit(`say`+args[2]);
+	emit(`say ${args[0]}`);
+	emit(`say ${args[1]}`);
+	emit(`say ${args[2]}`);
 	%%>
 }
 ```
